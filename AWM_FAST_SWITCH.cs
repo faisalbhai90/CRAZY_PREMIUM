@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class AWM_Patch
 {
-    public static async Task Run(dynamic mem, Label PID)
+    public static async Task Run(dynamic mem, dynamic PID)
     {
         try
         {
