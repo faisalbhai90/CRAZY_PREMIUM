@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 public class AWM_Y_Patch
 {
-    public static async Task Run(dynamic S1K, Label PID)
+    public static async Task Run(dynamic S1K, dynamic PID)
     {
         if (Process.GetProcessesByName("HD-Player").Length == 0)
         {
