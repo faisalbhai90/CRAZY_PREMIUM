@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-public class M82B_Location
+public class AWM_Location
 {
     public static async Task Run(dynamic mem, dynamic PID)
     {
@@ -13,7 +13,7 @@ public class M82B_Location
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.Beep(100, 200);
-            PID.Text = "ᴀᴘᴘʟʏɪɴɢ ᴍ82ʙ ʟᴏᴄᴀᴛꞮᴏɴ";
+            PID.Text = "ᴀᴘᴘʟʏɪɴɢ AWM ʟᴏᴄᴀᴛꞮᴏɴ";
 
             Int32 proc = Process.GetProcessesByName("HD-Player")[0].Id;
             mem.OpenProcess(proc);
@@ -32,11 +32,11 @@ public class M82B_Location
                 stopwatch.Stop();
                 double elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
                 Console.Beep(200, 300);
-                PID.Text = $"ᴍ82ʙ-ʟᴏᴄᴀᴛꞮᴏɴ=ᴏɴ,ᴛꞮᴍᴇ: {elapsedSeconds:F2} Seconds";
+                PID.Text = $"AWM-ʟᴏᴄᴀᴛꞮᴏɴ=ᴏɴ,ᴛꞮᴍᴇ: {elapsedSeconds:F2} Seconds";
             }
             else
             {
-                PID.Text = "❌ M82B value not found or too many results.";
+                PID.Text = "❌ AWM value not found or too many results.";
                 if (result.Count() > 2)
                 {
                     MessageBox.Show("ᴛʜꞮꜱ ᴄᴏᴅᴇ ɴᴏᴛ ꜱᴀꜰᴇ.", "ᴇƦƦᴏƦ", MessageBoxButtons.OK, MessageBoxIcon.Error);
