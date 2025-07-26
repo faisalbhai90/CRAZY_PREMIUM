@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 public class M82B_Location
 {
@@ -18,9 +19,10 @@ public class M82B_Location
             Int32 proc = Process.GetProcessesByName("HD-Player")[0].Id;
             mem.OpenProcess(proc);
 
-            var result = await mem.AoBScan("19 00 00 00 69 00 6e 00 67 00 61 00 6d 00 65 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 5f 00 62 00 6d 00 39 00 34 00 00 00");
+            var rawResult = await mem.AoBScan("19 00 00 00 69 00 6e 00 67 00 61 00 6d 00 65 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 5f 00 62 00 6d 00 39 00 34 00 00 00");
+            var result = ((IEnumerable<long>)rawResult).ToList();  // ✅ Type casting & List conversion
 
-            if (result.Count() != 0 && result.Count() < 2)
+            if (result.Count != 0 && result.Count < 2)
             {
                 foreach (long num in result)
                 {
@@ -37,7 +39,8 @@ public class M82B_Location
             else
             {
                 PID.Text = "❌ M82B value not found or too many results.";
-                if (result.Count() > 2)
+
+                if (result.Count > 2)
                 {
                     MessageBox.Show("ᴛʜꞮꜱ ᴄᴏᴅᴇ ɴᴏᴛ ꜱᴀꜰᴇ.", "ᴇƦƦᴏƦ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
