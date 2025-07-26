@@ -20,7 +20,7 @@ public class AWM_Patch
             Int32 proc = Process.GetProcessesByName("HD-Player")[0].Id;
             mem.OpenProcess(proc);
 
-            var result = await mem.AoBScan("0A D7 A3 3D 00 00 00 00 00 00 5C 43 00 00 90 42 00 00 B4 42 96 00 00 00 00 00 00 00 00 00 00 3F 00 00 80 3E 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 0A D7 23 3F 9A 99 99 3F 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00").ConfigureAwait(false);
+            var result = await mem.AoBScan("19 00 00 00 69 00 6e 00 67 00 61 00 6d 00 65 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 2f 00 70 00 69 00 63 00 6b 00 75 00 70 00 5f 00 62 00 6d 00 39 00 34 00 00 00").ConfigureAwait(false);
 
             if (result is IEnumerable<long> addresses)
             {
@@ -30,7 +30,7 @@ public class AWM_Patch
                 {
                     foreach (var num in addressList)
                     {
-                        mem.WriteMemory(num.ToString("X"), "bytes", "0A D7 A3 3D 00 00 00 00 00 00 5C 43 00 00 90 42 00 00 B4 42 96 00 00 00 00 00 00 00 EC 51 B8 3D 8F C2 F5 3C 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 0A D7 23 3F 9A 99 99 3F 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00", string.Empty, null);
+                        mem.WriteMemory(num.ToString("X"), "bytes", "19 00 00 00 65 00 66 00 66 00 65 00 63 00 74 00 73 00 2f 00 76 00 66 00 78 00 5f 00 69 00 6e 00 67 00 61 00 6d 00 65 00 5f 00 6c 00 61 00 73 00 65 00 72 00 00 00 00 00", string.Empty, null);
                     }
 
                     stopwatch.Stop();
