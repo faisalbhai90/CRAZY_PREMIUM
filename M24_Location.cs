@@ -3,8 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
-public class M24_Location
+public class AWM_Patch
 {
     public static async Task Run(dynamic mem, dynamic PID)
     {
@@ -12,40 +13,38 @@ public class M24_Location
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            Console.Beep(100, 200);
-            PID.Text = "ᴀᴘᴘʟʏɪɴɢ ᴍ24 ʟᴏᴄᴀᴛꞮᴏɴ";
+
+            Console.Beep(1000, 100); // শুরুতে beep
+            PID.Text = "⏳ Searching for AWM value...";
 
             Int32 proc = Process.GetProcessesByName("HD-Player")[0].Id;
             mem.OpenProcess(proc);
 
-            var result = await mem.AoBScan("18 00 00 00 69 00 6E 00 67 00 61 00 6D 00 65 00 2F 00 70 00 69 00 63 00 6B 00 75 00 70 00 2F 00 70 00 69 00 63 00 6B 00 75 00 70 00 5F 00 6D 00 32 00 34 00 00 00 00 00 80 AD 33 92");
+            var result = await mem.AoBScan("0A D7 A3 3D 00 00 00 00 00 00 5C 43 00 00 90 42 00 00 B4 42 96 00 00 00 00 00 00 00 00 00 00 3F 00 00 80 3E 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 0A D7 23 3F 9A 99 99 3F 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00").ConfigureAwait(false);
 
-            if (result.Count() != 0 && result.Count() < 2)
+            if (result is IEnumerable<long> addresses)
             {
-                foreach (long num in result)
+                var addressList = addresses.ToList();
+
+                if (addressList.Count > 0 && addressList.Count < 2)
                 {
-                    mem.WriteMemory(num.ToString("X"), "bytes",
-                        "00 00 00 65 00 66 00 66 00 65 00 63 00 74 00 73 00 2F 00 76 00 66 00 78 00 5F 00 69 00 6E 00 67 00 61 00 6D 00 65 00 5F 00 6C 00 61 00 73 00 65 00 72 00 5F 00 72 00 65 00 64 00",
-                        string.Empty, null);
+                    foreach (var num in addressList)
+                    {
+                        mem.WriteMemory(num.ToString("X"), "bytes", "0A D7 A3 3D 00 00 00 00 00 00 5C 43 00 00 90 42 00 00 B4 42 96 00 00 00 00 00 00 00 EC 51 B8 3D 8F C2 F5 3C 00 00 00 00 04 00 00 00 00 00 80 3F 00 00 20 41 00 00 34 42 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 0A D7 23 3F 9A 99 99 3F 00 00 80 3F 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 00 00 80 3F 00 00 80 3F 00 00", string.Empty, null);
+                    }
+
+                    stopwatch.Stop();
+                    PID.Text = $"✅ AWM Fast Switch: ON (⏱ {stopwatch.Elapsed.TotalSeconds:F2}s)";
                 }
-
-                stopwatch.Stop();
-                double elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
-                Console.Beep(200, 300);
-                PID.Text = $"ᴍ24-ʟᴏᴄᴀᴛꞮᴏɴ=ᴏɴ,ᴛꞮᴍᴇ: {elapsedSeconds:F2} Seconds";
-            }
-            else
-            {
-                PID.Text = "❌ M24 value not found or too many results.";
-                if (result.Count() > 2)
+                else
                 {
-                    MessageBox.Show("ᴛʜꞮꜱ ᴄᴏᴅᴇ ɴᴏᴛ ꜱᴀꜰᴇ.", "ᴇƦƦᴏƦ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    PID.Text = "❌ AWM Value Not Found or Too Many Results.";
                 }
             }
         }
         catch (Exception ex)
         {
-            PID.Text = $"Patch Failed: {ex.Message}";
+            MessageBox.Show("❌ Error: " + ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
