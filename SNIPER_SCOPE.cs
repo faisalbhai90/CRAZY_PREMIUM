@@ -71,7 +71,7 @@ public class SNIPER_SCOPE
             else if ((wheel == 1 && b.Delta > 0) || (wheel == -1 && b.Delta < 0)) Toggle();
         };
 
-        // Start Process
+        // Load AoB
         if (!memo.SetProcess(proc)) return;
         var r = await memo.AoBScan(orig);
         addrs = r.ToList();
