@@ -4,59 +4,108 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Gma.System.MouseKeyHook;
 
 public class SNIPER_SCOPE
 {
+    public static meowSniper memo = new meowSniper();
     public static List<long> addrs = new List<long>();
-
     public static string orig = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40 00 00 B0 3F";
     public static string patch = "FF FF FF FF 08 00 00 00 00 00 60 40 CD CC 8C 3F 8F C2 F5 3C CD CC CC 3D 06 00 00 00 00 00 00 3F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 3F 33 33 13 40";
     public static string[] proc = { "HD-Player" };
+    public static IKeyboardMouseEvents hook;
+    public static Keys key = Keys.None;
+    public static MouseButtons btn = MouseButtons.None;
+    public static int wheel = 0;
+    public static DateTime last = DateTime.MinValue;
+    public static bool listen = false;
+    public const int delay = 74, cooldown = 200;
 
-    public static async Task Run(dynamic mem, dynamic PID)
+    public static async Task Run(dynamic mem, dynamic PID, dynamic ButtonLabel)
     {
-        try
+        hook = Hook.GlobalEvents();
+
+        hook.KeyDown += async (a, b) =>
         {
-            PID.Text = "🔍 Loading Sniper Scope...";
-            var isSet = mem.SetProcess(proc);
-            if (!isSet)
+            if (listen)
             {
-                PID.Text = "❌ Process Not Found";
-                MessageBox.Show("Sniper Scope Process Not Found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                key = b.KeyCode;
+                btn = MouseButtons.None;
+                wheel = 0;
+                PID.Text = $"Key: {key}";
+                ButtonLabel.Text = key.ToString();
+                listen = false;
             }
+            else if (b.KeyCode == key)
+            {
+                await Toggle(mem);
+            }
+        };
 
-            var raw = await mem.AoBScan(orig);
-            addrs = ((IEnumerable<long>)raw).ToList();
+        hook.MouseDown += async (a, b) =>
+        {
+            if (listen)
+            {
+                btn = b.Button;
+                key = Keys.None;
+                wheel = 0;
+                PID.Text = $"Mouse: {btn}";
+                ButtonLabel.Text = btn.ToString();
+                listen = false;
+            }
+            else if (b.Button == btn)
+            {
+                await Toggle(mem);
+            }
+        };
 
-            if (addrs.Count > 0)
+        hook.MouseWheel += async (a, b) =>
+        {
+            if (listen)
             {
-                PID.Text = "✅ Sniper Scope Load Success";
-                Console.Beep(800, 200);
+                wheel = b.Delta > 0 ? 1 : -1;
+                key = Keys.None;
+                btn = MouseButtons.None;
+                PID.Text = wheel == 1 ? "Wheel UP" : "Wheel DOWN";
+                ButtonLabel.Text = PID.Text;
+                listen = false;
             }
-            else
+            else if ((wheel == 1 && b.Delta > 0) || (wheel == -1 && b.Delta < 0))
             {
-                PID.Text = "❌ Sniper Scope Failed";
-                MessageBox.Show("Sniper Scope Failed X", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await Toggle(mem);
             }
+        };
+
+        if (!memo.SetProcess(proc)) return;
+        var r = await memo.AoBScan(orig);
+        addrs = ((IEnumerable<long>)r).ToList();
+        PID.Text = addrs.Count > 0 ? "Sniper Scope Load Success" : "Sniper Scope Failed";
+        if (addrs.Count == 0)
+        {
+            MessageBox.Show("Sniper Scope Failed X", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-        catch (Exception ex)
+    }
+
+    public static void Scope(dynamic mem, bool on)
+    {
+        foreach (var a in addrs)
         {
-            PID.Text = $"❌ Patch Failed: {ex.Message}";
+            memo.AobReplace(a, on ? patch : orig);
         }
     }
 
     public static async Task Toggle(dynamic mem)
     {
-        if (addrs.Count == 0) return;
+        if ((DateTime.Now - last).TotalMilliseconds < cooldown || addrs.Count == 0) return;
+        last = DateTime.Now;
         Scope(mem, true);
-        await Task.Delay(74);
+        await Task.Delay(delay);
         Scope(mem, false);
     }
 
-    public static void Scope(dynamic mem, bool on)
+    public static void Listen(dynamic ButtonLabel)
     {
-        foreach (var addr in addrs)
-            mem.AobReplace(addr, on ? patch : orig);
+        listen = true;
+        ButtonLabel.Text = "Press a Key...";
     }
 }
